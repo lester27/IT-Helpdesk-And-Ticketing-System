@@ -26,7 +26,7 @@ These are data problems. Information on the events exists  (who reported the iss
 
 #### **Purpose**
 
-This project designs a relational database in MySQL for the IT helpdesk of a small company. The database stores users, departments, tickets, and equipment, and it records each ticket’s due date, status, and history. The goal is to make ticket status, deadlines, technician workload, and repeated equipment failures answerable with queries. This semester’s deliverable is the design: the overview, business rules, ERD, and data dictionary. Building the database is not required yet.
+This project designs a relational database in MySQL for the IT helpdesk of a small company. The database stores users, departments, tickets, and equipment, and it records each ticket’s due date, status, and history. The goal is to make ticket status, deadlines, technician workload, and repeated equipment failures answerable with queries. This semester’s deliverable is the design (the overview, business rules, ERD, and data dictionary) and a working system built on that design, using HTML, CSS, JavaScript, and PHP on top of the MySQL database.
 
 ### **Objectives**
 
@@ -79,15 +79,11 @@ The rules below split into two groups. BR1 to BR15 live in the database and hold
 | BR3 | Usernames and email addresses are unique. | UNIQUE constraints |
 | BR4 | Users are deactivated, never deleted. Rows referenced by tickets or equipment cannot be removed. | users.is\_active, ON DELETE RESTRICT on all foreign keys |
 
-#### 
-
 #### **Technician qualifications**
 
 | ID | Rule | Enforced by |
 | :---- | :---- | :---- |
 | BR5 | A Technician may be qualified for any number of categories, and a category may have any number of qualified Technicians. A qualification is recorded once per Technician and category. | technician\_skills (composite primary key, foreign keys to users and categories) |
-
-#### 
 
 #### **Tickets**
 
@@ -187,10 +183,10 @@ The rules below split into two groups. BR1 to BR15 live in the database and hold
 | equipment\_type | VARCHAR(50) |  | No |  | Laptop, printer, router, and so on |
 | brand | VARCHAR(50) |  | No |  | Manufacturer |
 | model | VARCHAR(50) |  | No |  | Model name or number |
-| serial\_number | VARCHAR(50) |  | No | UNIQUE | Manufacturer serial number (BR12) |
-| status | VARCHAR(20) |  | No | CHECK IN (‘In Stock’,’Assigned’,’Under Repair’,’Retired’), DEFAULT ‘In Stock’ | Current equipment status (BR12) |
+| serial\_number | VARCHAR(50) |  | No | UNIQUE | Manufacturer serial number (BR13) |
+| status | VARCHAR(20) |  | No | CHECK IN (‘In Stock’,’Assigned’,’Under Repair’,’Retired’), DEFAULT ‘In Stock’ | Current equipment status (BR13) |
 | warranty\_expiry | DATE |  | Yes |  | Last day of warranty, empty if unknown or none |
-| assigned\_user\_id | INT | FK → users | Yes |  | Current holder, empty if not held (BR13) |
+| assigned\_user\_id | INT | FK → users | Yes |  | Current holder, empty if not held (BR14) |
 
 ## 
 
