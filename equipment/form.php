@@ -3,7 +3,7 @@
  * equipment/form.php[?id=N] — create or edit equipment (Admin)
  * OWNER: Harold
  *
- * Fields: equipment_type, brand, model, serial_number (UNIQUE — BR12),
+ * Fields: equipment_type, brand, model, serial_number (UNIQUE — BR13),
  *         status (EQUIPMENT_STATUSES), warranty_expiry (optional date),
  *         assigned_user_id (optional select of ACTIVE users)
  *

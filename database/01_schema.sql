@@ -30,7 +30,7 @@ CREATE TABLE categories (
     CONSTRAINT uq_categories_name UNIQUE (category_name)
 ) ENGINE=InnoDB;
 
--- BR9: each priority has one resolution target in hours (> 0)
+-- BR10: each priority has one resolution target in hours (> 0)
 CREATE TABLE priorities (
     priority_id      INT         NOT NULL AUTO_INCREMENT,
     priority_name    VARCHAR(20) NOT NULL,
@@ -63,7 +63,7 @@ CREATE TABLE users (
         REFERENCES departments (department_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- Junction: which categories each Technician is qualified for (composite PK, no AUTO_INCREMENT)
+-- BR5: junction of Technicians and categories; a qualification is recorded once (composite PK, no AUTO_INCREMENT)
 CREATE TABLE technician_skills (
     user_id     INT       NOT NULL,
     category_id INT       NOT NULL,
@@ -75,7 +75,7 @@ CREATE TABLE technician_skills (
         REFERENCES categories (category_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- BR12 unique serial + status · BR13 at most one current holder
+-- BR13 unique serial + status · BR14 at most one current holder
 CREATE TABLE equipment (
     equipment_id     INT         NOT NULL AUTO_INCREMENT,
     equipment_type   VARCHAR(50) NOT NULL,
@@ -96,8 +96,8 @@ CREATE TABLE equipment (
 -- TRANSACTION TABLES
 -- ---------------------------------------------------------------------
 
--- BR5 required fields · BR6 status + default Open · BR7 optional assignee/equipment
--- due_at is filled by trigger trg_tickets_bi (BR10). Do NOT set it from PHP.
+-- BR6 required fields · BR7 status + default Open · BR8 optional assignee/equipment
+-- due_at is filled by trigger trg_tickets_bi (BR11). Do NOT set it from PHP.
 CREATE TABLE tickets (
     ticket_id    INT          NOT NULL AUTO_INCREMENT,
     title        VARCHAR(255) NOT NULL,
@@ -125,7 +125,7 @@ CREATE TABLE tickets (
         REFERENCES equipment (equipment_id) ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB;
 
--- BR8: every status change and comment. Plain comments leave both status fields NULL.
+-- BR9: every status change and comment. Plain comments leave both status fields NULL.
 CREATE TABLE ticket_updates (
     update_id  INT         NOT NULL AUTO_INCREMENT,
     ticket_id  INT         NOT NULL,
@@ -152,7 +152,7 @@ CREATE INDEX idx_tickets_created_at  ON tickets (created_at);
 CREATE INDEX idx_updates_created_at  ON ticket_updates (created_at);
 
 -- ---------------------------------------------------------------------
--- TRIGGER — BR10: due_at = created_at + priority.resolution_hours
+-- TRIGGER — BR11: due_at = created_at + priority.resolution_hours
 -- ---------------------------------------------------------------------
 DELIMITER $$
 
@@ -176,7 +176,7 @@ END$$
 DELIMITER ;
 
 -- ---------------------------------------------------------------------
--- VIEW — BR11: SLA state per ticket
+-- VIEW — BR12: SLA state per ticket
 --   Unresolved: Breached if past due, At Risk if < 20% of target left, else On Track
 --   Resolved:   Met if resolved_at <= due_at, else Breached
 --   overdue_hours: hours past due_at, up to NOW() or up to resolved_at (0 if not late)

@@ -79,30 +79,40 @@ The rules below split into two groups. BR1 to BR15 live in the database and hold
 | BR3 | Usernames and email addresses are unique. | UNIQUE constraints |
 | BR4 | Users are deactivated, never deleted. Rows referenced by tickets or equipment cannot be removed. | users.is\_active, ON DELETE RESTRICT on all foreign keys |
 
+#### 
+
+#### **Technician qualifications**
+
+| ID | Rule | Enforced by |
+| :---- | :---- | :---- |
+| BR5 | A Technician may be qualified for any number of categories, and a category may have any number of qualified Technicians. A qualification is recorded once per Technician and category. | technician\_skills (composite primary key, foreign keys to users and categories) |
+
+#### 
+
 #### **Tickets**
 
 | ID | Rule | Enforced by |
 | :---- | :---- | :---- |
-| BR5 | A ticket requires a title, description, category, priority, and creator. Category and priority must come from their lookup tables. Categories are Hardware, Software, Network, Account Access, and Other. Priorities are Low, Medium, High, and Urgent. | NOT NULL, foreign keys to categories, priorities, and users |
-| BR6 | Ticket status is Open, In Progress, Resolved. A new ticket starts as Open. | CHECK on tickets.status, DEFAULT ‘Open’ |
-| BR7 | A ticket may have one assigned user and one related piece of equipment. Both are optional. | Nullable foreign keys assigned\_to and equipment\_id |
-| BR8 | Every status change and comment on a ticket is recorded with the old status, new status, user, and time. Plain comments leave both status fields empty. | ticket\_updates table, rows written by the application |
+| BR6 | A ticket requires a title, description, category, priority, and creator. Category and priority must come from their lookup tables. Categories are Hardware, Software, Network, Account Access, and Other. Priorities are Low, Medium, High, and Urgent. | NOT NULL, foreign keys to categories, priorities, and users |
+| BR7 | Ticket status is Open, In Progress, Resolved. A new ticket starts as Open. | CHECK on tickets.status, DEFAULT ‘Open’ |
+| BR8 | A ticket may have one assigned user and one related piece of equipment. Both are optional. | Nullable foreign keys assigned\_to and equipment\_id |
+| BR9 | Every status change and comment on a ticket is recorded with the old status, new status, user, and time. Plain comments leave both status fields empty. | ticket\_updates table, rows written by the application |
 
 #### **Due dates**
 
 | ID | Rule | Enforced by |
 | :---- | :---- | :---- |
-| BR9 | Each priority has one resolution target, in hours. | priorities.resolution\_hours, CHECK greater than 0 |
-| BR10 | A ticket’s due date is its creation time plus the resolution target of its priority, set when the ticket is created. | BEFORE INSERT trigger trg\_tickets\_bi |
-| BR11 | An unresolved ticket is At Risk when less than 20% of its target time remains and Breached once the due date has passed. Otherwise it is On Track. A resolved ticket is met if resolved on or before the due date and Breached if later. Overdue hours are the hours past the due date, up to now or up to resolution. | View v\_ticket\_sla |
+| BR10 | Each priority has one resolution target, in hours. | priorities.resolution\_hours, CHECK greater than 0 |
+| BR11 | A ticket’s due date is its creation time plus the resolution target of its priority, set when the ticket is created. | BEFORE INSERT trigger trg\_tickets\_bi |
+| BR12 | An unresolved ticket is At Risk when less than 20% of its target time remains and Breached once the due date has passed. Otherwise it is On Track. A resolved ticket is met if resolved on or before the due date and Breached if later. Overdue hours are the hours past the due date, up to now or up to resolution. | View v\_ticket\_sla |
 
 #### **Equipment**
 
 | ID | Rule | Enforced by |
 | :---- | :---- | :---- |
-| BR12 | Each piece of equipment has a unique serial number and one status: In Stock, Assigned, Under Repair, or Retired. | UNIQUE on serial\_number, CHECK on equipment.status |
-| BR13 | A piece of equipment has at most one current holder. Past holders are not kept. | Nullable foreign key assigned\_user\_id |
-| BR14 | Equipment has a recurring issue when three or more tickets reference it within 90 days. | Reporting query (INTERSECT with equipment still under warranty) |
+| BR13 | Each piece of equipment has a unique serial number and one status: In Stock, Assigned, Under Repair, or Retired. | UNIQUE on serial\_number, CHECK on equipment.status |
+| BR14 | A piece of equipment has at most one current holder. Past holders are not kept. | Nullable foreign key assigned\_user\_id |
+| BR15 | Equipment has a recurring issue when three or more tickets reference it within 90 days. | Reporting query (INTERSECT with equipment still under warranty) |
 
 #### **Application-enforced rules**
 
@@ -214,4 +224,3 @@ The rules below split into two groups. BR1 to BR15 live in the database and hold
 | new\_status | VARCHAR(20) |  | Yes | CHECK IN (‘Open’,’In Progress’,’Resolved’) | Status after the change, empty for plain comments |
 | comment | TEXT |  | Yes |  | Comment text |
 | created\_at | TIMESTAMP |  | No | DEFAULT CURRENT\_TIMESTAMP | When the update was made |
-

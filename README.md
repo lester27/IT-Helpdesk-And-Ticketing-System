@@ -99,8 +99,9 @@ The database enforces data rules (keys, constraints, a due-date **trigger**, and
 | Enforced by **database** | Enforced by **PHP app** |
 |---|---|
 | BR1–BR4 users/departments (CHECK, FK, UNIQUE, RESTRICT) | BR16 status order Open → In Progress → Resolved |
-| BR5–BR8 tickets (NOT NULL, FK, CHECK, DEFAULT) | BR17 only Admin assigns, only to active + qualified tech |
-| BR9–BR10 due date (`trg_tickets_bi`) | BR18 resolved tickets are read-only |
-| BR11 SLA state (`v_ticket_sla`) | BR19 retired equipment can't be assigned/linked |
-| BR12–BR14 equipment + recurring report | |
+| BR5 technician qualifications (composite PK on `technician_skills`) |  |
+| BR6–BR9 tickets (NOT NULL, FK, CHECK, DEFAULT) | BR17 only Admin assigns, only to active + qualified tech |
+| BR10–BR11 due date (`trg_tickets_bi`) | BR18 resolved tickets are read-only |
+| BR12 SLA state (`v_ticket_sla`) | BR19 retired equipment can't be assigned/linked |
+| BR13–BR15 equipment + recurring report | |
 

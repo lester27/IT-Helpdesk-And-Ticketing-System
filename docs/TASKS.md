@@ -30,7 +30,7 @@ Some pages are shared. The pairs below work together:
 - [ ] `tickets/view.php`: load ticket + joins + `v_ticket_sla`, access check, timeline from `ticket_updates`
 
 **Week 3**
-- [ ] `tickets/update.php`: comments (BR8); status changes in a transaction, next status only (BR16), lock resolved tickets (BR18), set `resolved_at`
+- [ ] `tickets/update.php`: comments (BR9); status changes in a transaction, next status only (BR16), lock resolved tickets (BR18), set `resolved_at`
 - [ ] `tickets/assign.php`: Admin only, active + qualified technician (BR17), history row, transaction
 
 **Week 4**
@@ -68,7 +68,7 @@ Some pages are shared. The pairs below work together:
 
 **Week 3**
 - [ ] `users/skills.php`: checkbox editor for `technician_skills`, saved in a transaction
-- [ ] `equipment/form.php`: create/edit, unique serial error (BR12), holder ↔ status consistency (BR13), retired equipment can't have a holder (BR19)
+- [ ] `equipment/form.php`: create/edit, unique serial error (BR13), holder ↔ status consistency (BR14), retired equipment can't have a holder (BR19)
 
 **Week 4**
 - [ ] Test the user, skills and equipment rules from [PAGES.md](PAGES.md)
@@ -83,7 +83,7 @@ Some pages are shared. The pairs below work together:
 - [ ] `equipment/index.php`: equipment table, status badges, highlight expired warranty, filters
 
 **Week 3**
-- [ ] `equipment/view.php`: detail card + table of tickets for that equipment + "Recurring issue" badge (BR14)
+- [ ] `equipment/view.php`: detail card + table of tickets for that equipment + "Recurring issue" badge (BR15)
 
 **Week 4**
 - [ ] Run the full test checklist in [PAGES.md](PAGES.md) with every demo account and open an Issue for each bug found

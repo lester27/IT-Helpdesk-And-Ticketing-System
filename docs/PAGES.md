@@ -7,20 +7,20 @@ Use this as the testing checklist in Week 4.
 | Page | Employee | Technician | Admin | Rules |
 |---|:-:|:-:|:-:|---|
 | `login.php` | ✓ | ✓ | ✓ | BR4 inactive users can't log in |
-| `dashboard.php` | own view | own view | own view | BR11 SLA badges |
+| `dashboard.php` | own view | own view | own view | BR12 SLA badges |
 | `tickets/index.php` | own tickets | assigned + all | all | |
-| `tickets/create.php` | ✓ | – | optional | BR5, BR6, BR10, BR19 |
-| `tickets/view.php` | own only | ✓ | ✓ | BR11, BR18 |
-| `tickets/update.php` (comment) | own only | ✓ | ✓ | BR8, BR18 |
-| `tickets/update.php` (status) | – | if assigned | ✓ | BR8, BR16, BR18 |
+| `tickets/create.php` | ✓ | – | optional | BR6, BR7, BR11, BR19 |
+| `tickets/view.php` | own only | ✓ | ✓ | BR12, BR18 |
+| `tickets/update.php` (comment) | own only | ✓ | ✓ | BR9, BR18 |
+| `tickets/update.php` (status) | – | if assigned | ✓ | BR9, BR16, BR18 |
 | `tickets/assign.php` | – | – | ✓ | BR17, BR18 |
 | `equipment/index.php` | – | read | ✓ | |
-| `equipment/form.php` | – | – | ✓ | BR12, BR13, BR19 |
-| `equipment/view.php` | – | read | ✓ | BR14 |
+| `equipment/form.php` | – | – | ✓ | BR13, BR14, BR19 |
+| `equipment/view.php` | – | read | ✓ | BR15 |
 | `users/index.php` / `form.php` | – | – | ✓ | BR1–BR4 |
-| `users/skills.php` | – | – | ✓ | composite PK |
+| `users/skills.php` | – | – | ✓ | BR5 (composite PK) |
 | `departments/index.php` | – | – | ✓ | BR4 (no delete) |
-| `reports/index.php` | – | – | ✓ | BR11, BR14, R2–R5 |
+| `reports/index.php` | – | – | ✓ | BR12, BR15, R2–R5 |
 
 ## Rule-breaking tests (should all FAIL gracefully)
 - [ ] Log in as `tech.old` (inactive)
