@@ -43,7 +43,7 @@ GROUP BY u.user_id, u.full_name
 ORDER BY open_tickets ASC, u.full_name;
 
 -- ---------------------------------------------------------------------
--- R3. RECURRING EQUIPMENT STILL UNDER WARRANTY — INTERSECT (BR14)
+-- R3. RECURRING EQUIPMENT STILL UNDER WARRANTY — INTERSECT (BR15)
 -- Equipment with >= 3 tickets in the last 90 days  INTERSECT  equipment under warranty.
 -- Requires MySQL 8.0.31+ or MariaDB 10.3+.
 -- ---------------------------------------------------------------------
@@ -94,7 +94,7 @@ WHERE t.status = 'Resolved'
 ORDER BY resolution_hours DESC;
 
 -- ---------------------------------------------------------------------
--- R5. SLA OVERVIEW — from view v_ticket_sla (BR11)
+-- R5. SLA OVERVIEW — from view v_ticket_sla (BR12)
 -- ---------------------------------------------------------------------
 SELECT ticket_id, title, status, due_at, sla_state, overdue_hours
 FROM v_ticket_sla

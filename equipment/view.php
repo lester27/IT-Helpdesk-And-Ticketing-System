@@ -5,7 +5,7 @@
  *
  * Shows: all equipment fields, current holder, warranty state,
  *        list of tickets WHERE equipment_id = N (newest first),
- *        "Recurring issue" badge if >= 3 tickets in last 90 days (BR14)
+ *        "Recurring issue" badge if >= 3 tickets in last 90 days (BR15)
  */
 require_once __DIR__ . '/../includes/auth.php';
 require_role(['Admin', 'Technician']);

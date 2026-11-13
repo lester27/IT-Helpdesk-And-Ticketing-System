@@ -10,7 +10,7 @@
  *   - ticket exists; if status = 'Resolved' -> reject (BR18, resolved is final)
  *
  * action = 'comment':
- *   INSERT ticket_updates (ticket_id, user_id, old_status=NULL, new_status=NULL, comment)   (BR8)
+ *   INSERT ticket_updates (ticket_id, user_id, old_status=NULL, new_status=NULL, comment)   (BR9)
  *
  * action = 'status' (assigned Technician or Admin only):
  *   - Only allow the NEXT status (BR16): Open -> In Progress -> Resolved. No skipping, no going back.

@@ -12,10 +12,10 @@
  *                 AND status <> 'Retired')   <- BR19
  *
  * On POST:
- *   - verify_csrf(), validate required fields (BR5)
+ *   - verify_csrf(), validate required fields (BR6)
  *   - INSERT INTO tickets (title, description, category_id, priority_id, created_by, equipment_id)
  *     DO NOT send status, created_at, or due_at:
- *       status defaults to 'Open' (BR6), due_at is set by trigger trg_tickets_bi (BR10)
+ *       status defaults to 'Open' (BR7), due_at is set by trigger trg_tickets_bi (BR11)
  *   - flash success, redirect to view.php?id=<lastInsertId>
  */
 require_once __DIR__ . '/../includes/auth.php';
