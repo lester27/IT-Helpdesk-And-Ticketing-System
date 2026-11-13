@@ -1,0 +1,3 @@
+# Block direct web access to this folder (Apache / XAMPP)
+Require all denied
+

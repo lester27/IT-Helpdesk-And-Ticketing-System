@@ -1,0 +1,18 @@
+# Local config with real credentials
+config/db.php
+
+# OS / editor
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+
+# Logs / temp
+*.log
+*.tmp
+
+# Office lock files (when editing the paper)
+~$*
+
