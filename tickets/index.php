@@ -25,11 +25,44 @@ $sql = "SELECT t.ticket_id, t.title, c.category_name, p.priority_name,
         INNER JOIN categories c ON c.category_id    = t.category_id
         INNER JOIN priorities p ON p.priority_id    = t.priority_id
         LEFT JOIN users a       ON a.user_id        = t.assigned_to
-        LEFT JOIN v_ticket_sla s ON s.ticket_id     = t.ticket_id
-        ORDER BY t.created_at DESC";
+        LEFT JOIN v_ticket_sla s ON s.ticket_id     = t.ticket_id";
+
+$where = [];
+$params = [];
+$me = current_user();
+
+if (has_role('Employee')) {
+    $where[] = 't.created_by = ?';
+    $params[] = $me['user_id'];
+}
+
+if (has_role('Technician')){
+
+    $view = $_GET['view'] ?? '';
+    if ($view === 'mine') {
+        $where[] = 't.assigned_to = ?';
+        $params[] = $me['user_id'];
+    }
+    
+}
+
+if (has_role('Admin')) {
+    
+    $view = $_GET['unassigned'] ?? '';
+    if ($view === '1') {
+        $where[] = 't.assigned_to IS NULL';
+
+    }
+}
+
+if ($where) {
+    $sql .= ' WHERE ' . implode(' AND ', $where);
+}
+
+$sql .= ' ORDER BY t.created_at DESC';
 
 $stmt = db()->prepare($sql);
-$stmt->execute();
+$stmt->execute($params);
 $tickets = $stmt->fetchAll();
 
 $pageTitle = 'Tickets';
@@ -42,6 +75,31 @@ require __DIR__ . '/../includes/header.php';
         <a class="btn btn-primary" href="create.php"><i class="bi bi-plus-lg"></i> New Ticket</a>
     <?php endif; ?>
 </div>
+
+<?php if (has_role('Technician')): ?>
+    <?php $isMine = ($_GET['view'] ?? '') === 'mine'; ?>
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link <?= $isMine ? 'active' : '' ?>" href="index.php?view=mine">Assigned to Me</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <?= !$isMine ? 'active' : '' ?>" href="index.php">All Tickets</a>
+        </li>
+    </ul>
+<?php endif; ?>
+
+<?php if (has_role('Admin')): ?>
+    <?php $isUnassigned = ($_GET['unassigned'] ?? '') === '1'; ?>
+    <ul class="nav nav-tabs mb-3">
+        <li class="nav-item">
+            <a class="nav-link <?= $isUnassigned ? 'active' : '' ?>" href="index.php?unassigned=1">Unassigned Tickets</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link <?= !$isUnassigned ? 'active' : '' ?>" href="index.php">All tickets</a>
+        </li>
+    </ul>
+<?php endif; ?>
+
 
 <!-- ===== FILTER BAR (GET form) ===== -->
 <!-- TODO(Tickets): status / category / priority / SLA selects + search box -->
@@ -67,7 +125,7 @@ require __DIR__ . '/../includes/header.php';
     </thead>
     <tbody>
         <?php if (!$tickets): ?>
-            <tr><td colspan="7" class="text-center text-muted">No tickets found. </td></tr>
+            <tr><td colspan="9" class="text-center text-muted">No tickets found. </td></tr>
         <?php endif; ?>   
         <?php foreach ($tickets as $t): ?>
             <tr>
