@@ -18,11 +18,14 @@ require_login();
 
 // TODO(Tickets): build query + filters by role, using prepared statements
 $sql = "SELECT t.ticket_id, t.title, c.category_name, p.priority_name,
-               t.status, u.full_name AS created_by, t.due_at
+               t.status, u.full_name AS created_by, t.due_at,
+               a.full_name AS assigned_to, s.sla_state
         FROM tickets t
         INNER JOIN users u      ON u.user_id        = t.created_by
         INNER JOIN categories c ON c.category_id    = t.category_id
         INNER JOIN priorities p ON p.priority_id    = t.priority_id
+        LEFT JOIN users a       ON a.user_id        = t.assigned_to
+        LEFT JOIN v_ticket_sla s ON s.ticket_id     = t.ticket_id
         ORDER BY t.created_at DESC";
 
 $stmt = db()->prepare($sql);
@@ -56,7 +59,10 @@ require __DIR__ . '/../includes/header.php';
             <th>Priority</th>
             <th>Created by</th>
             <th>Due</th>
+            <th>Assigned to</th>
+            <th>SLA</th>
             <th>Status</th>
+
         </tr>
     </thead>
     <tbody>
@@ -75,6 +81,12 @@ require __DIR__ . '/../includes/header.php';
                 <td><?= e($t['priority_name']) ?> </td>
                 <td><?= e($t['created_by']) ?> </td>
                 <td><?= e($t['due_at']) ?> </td>
+                <td><?= e($t['assigned_to'] ?? '—') ?> </td>
+                <td>
+                    <span class="badge <?= sla_badge($t['sla_state']) ?>">
+                        <?= e($t['sla_state']) ?>  
+                    </span>
+                </td>
                 <td>
                     <span class="badge <?= status_badge($t['status']) ?>">
                         <?= e($t['status']) ?>  
