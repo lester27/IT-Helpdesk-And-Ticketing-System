@@ -22,11 +22,11 @@ Some pages are shared. The pairs below work together:
 
 ## Lester: Ticket Workflow & Integration
 **Week 1**
-- [ ] GitHub setup: protect `main`, create Issues from this file, Project board (To Do / In Progress / Review / Done)
-- [ ] Make sure everyone has the project running locally (by Nov 15)
+- [x] GitHub setup: protect `main`, create Issues from this file, Project board (To Do / In Progress / Review / Done)
+- [x] Make sure everyone has the project running locally (by Nov 15)
 
 **Week 2**
-- [ ] `tickets/index.php`: role-based query (Employee = own, Technician = assigned/all, Admin = all + unassigned), filters, SLA badge
+- [x] `tickets/index.php`: role-based query (Employee = own, Technician = assigned/all, Admin = all + unassigned), filters, SLA badge
 - [ ] `tickets/view.php`: load ticket + joins + `v_ticket_sla`, access check, timeline from `ticket_updates`
 
 **Week 3**
