@@ -17,7 +17,17 @@ require_once __DIR__ . '/../includes/auth.php';
 require_login();
 
 // TODO(Tickets): build query + filters by role, using prepared statements
-$tickets = [];
+$sql = "SELECT t.ticket_id, t.title, c.category_name, p.priority_name,
+               t.status, u.full_name AS created_by, t.due_at
+        FROM tickets t
+        INNER JOIN users u      ON u.user_id        = t.created_by
+        INNER JOIN categories c ON c.category_id    = t.category_id
+        INNER JOIN priorities p ON p.priority_id    = t.priority_id
+        ORDER BY t.created_at DESC";
+
+$stmt = db()->prepare($sql);
+$stmt->execute();
+$tickets = $stmt->fetchAll();
 
 $pageTitle = 'Tickets';
 require __DIR__ . '/../includes/header.php';
@@ -37,6 +47,46 @@ require __DIR__ . '/../includes/header.php';
 <!-- Columns: #, Title (link to view.php?id=), Category, Priority, Status badge,
      Created by, Assigned to, Due, SLA badge -->
 <!-- TODO(Tickets): table.table.table-hover; show "No tickets found" when empty -->
+<table class="table table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Priority</th>
+            <th>Created by</th>
+            <th>Due</th>
+            <th>Status</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php if (!$tickets): ?>
+            <tr><td colspan="7" class="text-center text-muted">No tickets found. </td></tr>
+        <?php endif; ?>   
+        <?php foreach ($tickets as $t): ?>
+            <tr>
+                <td><?= e($t['ticket_id']) ?> </td>
+                <td>
+                    <a href="view.php?id=<?= e($t['ticket_id']) ?>">
+                        <?= e($t['title']) ?>
+                    </a>
+                </td>
+                <td><?= e($t['category_name']) ?> </td>
+                <td><?= e($t['priority_name']) ?> </td>
+                <td><?= e($t['created_by']) ?> </td>
+                <td><?= e($t['due_at']) ?> </td>
+                <td>
+                    <span class="badge <?= status_badge($t['status']) ?>">
+                        <?= e($t['status']) ?>  
+                    </span>
+                </td>
+            </tr>     
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+
+
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>
 
