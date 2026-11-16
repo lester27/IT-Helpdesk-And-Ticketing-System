@@ -16,7 +16,6 @@
 require_once __DIR__ . '/../includes/auth.php';
 require_login();
 
-// TODO(Tickets): build query + filters by role, using prepared statements
 $sql = "SELECT t.ticket_id, t.title, c.category_name, p.priority_name,
                t.status, u.full_name AS created_by, t.due_at,
                a.full_name AS assigned_to, s.sla_state
@@ -54,6 +53,43 @@ if (has_role('Admin')) {
 
     }
 }
+
+$categories = db()->query('SELECT category_id, category_name FROM categories 
+    ORDER BY category_name')->fetchALL();
+$priorities =db()->query('SELECT priority_id, priority_name FROM priorities 
+    ORDER BY priority_id')->fetchALL();
+
+$status     = $_GET['status'] ?? '';
+$categoryId = (int)($_GET['category_id'] ?? 0);
+$priorityId = (int)($_GET['priority_id'] ?? 0);
+$slaState   = $_GET['sla_state'] ?? '';
+$q          = trim($_GET['q']  ?? '');
+
+if (in_array($status, TICKET_STATUSES, true)) {
+    $where [] = 't.status = ?';
+    $params [] = $status;
+}
+
+if ($categoryId > 0){
+    $where [] = 't.category_id = ?';
+    $params [] = $categoryId;
+}
+
+if ($priorityId > 0){
+    $where [] = 't.priority_id = ?';
+    $params [] = $priorityId;
+}
+
+if (in_array($slaState, ['On Track', 'At Risk', 'Breached', 'Met'], true)) {
+    $where[] = 's.sla_state = ? COLLATE utf8mb4_unicode_ci';
+    $params [] = $slaState;
+}
+
+if ($q !== '') {
+    $where [] = 't.title LIKE ?';
+    $params [] = '%'. $q . '%';
+}
+
 
 if ($where) {
     $sql .= ' WHERE ' . implode(' AND ', $where);
@@ -102,12 +138,74 @@ require __DIR__ . '/../includes/header.php';
 
 
 <!-- ===== FILTER BAR (GET form) ===== -->
-<!-- TODO(Tickets): status / category / priority / SLA selects + search box -->
+<form method="get" class="row g-2 mb-3">
+    <?php if (has_role('Technician') && ($_GET['view'] ?? '') === 'mine'): ?>
+        <input type="hidden" name="view" value="mine">
+    <?php endif; ?>
+    <?php if (has_role('Admin') && ($_GET['unassigned'] ?? '') === '1'): ?>
+        <input type="hidden" name="unassigned" value="1">
+    <?php endif; ?>
 
-<!-- ===== TICKET TABLE ===== -->
-<!-- Columns: #, Title (link to view.php?id=), Category, Priority, Status badge,
-     Created by, Assigned to, Due, SLA badge -->
-<!-- TODO(Tickets): table.table.table-hover; show "No tickets found" when empty -->
+    <!-- Status Select-->
+    <div class="col-md-2">
+        <select name="status" class="form-select">
+            <option value="">All Statuses</option>
+            <?php foreach (TICKET_STATUSES as $st): ?>
+                <option value="<?= e($st) ?>" <?= $status === $st ? 'selected' : '' ?>>
+                    <?= e($st) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <!-- Category Select -->
+    <div class="col-md-2">
+        <select name="category_id" class="form-select">
+            <option value="">All Categories</option>
+            <?php foreach ($categories as $c): ?>
+                <option value="<?= e($c['category_id']) ?>" <?= $categoryId === (int)$c['category_id'] ? 'selected' : '' ?>>
+                    <?= e($c['category_name']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <!-- Priority select) -->
+    <div class="col-md-2">
+        <select name="priority_id" class="form-select">
+            <option value="">All priorities</option>
+            <?php foreach ($priorities as $p): ?>
+                <option value="<?= e($p['priority_id']) ?>" <?= $priorityId === (int)$p['priority_id'] ? 'selected' : '' ?>>
+                    <?= e($p['priority_name']) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+    
+    <!-- SLA select -->
+    
+    <div class="col-md-2">
+        <select name="sla_state" class="form-select">
+            <option value="">All SLA</option>
+            <?php foreach (['On Track', 'At Risk', 'Breached', 'Met'] as $s): ?>
+                <option value="<?= e($s) ?>" <?= $slaState === $s ? 'selected' : '' ?>>
+                    <?= e($s) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+    </div>
+
+    <!-- Title search -->
+    <div class="col-md-3">
+        <input type="text" name="q" class="form-control" placeholder="Search title..." value="<?= e($q) ?>">
+    </div>
+
+    <div class="col-md-auto">
+        <button type="submit" class="btn btn-outline-primary">Filter</button>
+        <a href="index.php" class="btn btn-outline-secondary">Reset</a>
+    </div>
+</form>
+
 <table class="table table-hover">
     <thead>
         <tr>
