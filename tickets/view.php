@@ -36,13 +36,15 @@ $updates = $stmt->fetchAll();
 $sql = "SELECT t.ticket_id, t.title, c.category_name, p.priority_name,
                t.status, t.created_by AS creator_id, u.full_name AS creator_name,
                t.due_at, t.description, t.created_at, t.resolved_at, 
-               a.full_name AS assigned_to, s.sla_state
+               a.full_name AS assigned_to, s.sla_state, s.overdue_hours,
+               eq.model AS equipment_model
         FROM tickets t
         INNER JOIN users u      ON u.user_id        = t.created_by
         INNER JOIN categories c ON c.category_id    = t.category_id
         INNER JOIN priorities p ON p.priority_id    = t.priority_id
         LEFT JOIN users a       ON a.user_id        = t.assigned_to
         LEFT JOIN v_ticket_sla s ON s.ticket_id     = t.ticket_id
+        LEFT JOIN equipment eq  ON eq.equipment_id = t.equipment_id
         WHERE t.ticket_id = ?";
 
 $stmt = db()->prepare($sql);
@@ -91,22 +93,27 @@ require __DIR__ . '/../includes/header.php';
                 </span>
             </dd> 
             <dt class="col-sm-3">Creator:</dt>
-            <dd class="col-sm-9"><?= e($ticket['creator_name']) ?></dd>
+                <dd class="col-sm-9"><?= e($ticket['creator_name']) ?></dd>
             <dt class="col-sm-3">Assignee:</dt>
-            <dd class="col-sm-9"><?= e($ticket['assigned_to'] ?? '—') ?></dd>
+                <dd class="col-sm-9"><?= e($ticket['assigned_to'] ?? '—') ?></dd>
             <dt class="col-sm-3">Due Date:</dt>
-            <dd class="col-sm-9"><?= nl2br(e($ticket['due_at'])) ?></dd>
+                <dd class="col-sm-9"><?= e($ticket['due_at']) ?></dd>
             <dt class="col-sm-3">Description:</dt>
-            <dd class="col-sm-9"><?= e($ticket['description']) ?></dd>
+                <dd class="col-sm-9"><?= nl2br(e($ticket['description'])) ?></dd>
             <dt class="col-sm-3">Created At:</dt>
-            <dd class="col-sm-9"><?= e($ticket['created_at']) ?></dd>
+                <dd class="col-sm-9"><?= e($ticket['created_at']) ?></dd>
             <dt class="col-sm-3">Resolved At:</dt>
-            <dd class="col-sm-9"><?= e($ticket['resolved_at'] ?? '—') ?></dd>
+                <dd class="col-sm-9"><?= e($ticket['resolved_at'] ?? '—') ?></dd>
             <dt class="col-sm-3">SLA State:</dt>
-            <dd class="col-sm-9">
-                <span class="badge <?= sla_badge($ticket['sla_state']) ?>">
-                     <?= e($ticket['sla_state']) ?>
-                </span>     
+                <dd class="col-sm-9">
+                    <span class="badge <?= sla_badge($ticket['sla_state']) ?>">
+                         <?= e($ticket['sla_state']) ?>
+                    </span>
+                </dd>
+            <dt class="col-sm-3">Overdue Hours:</dt>
+                <dd class="col-sm-9"><?= e($ticket['overdue_hours']) ?></dd>
+            <dt class="col-sm-3">Equipment Model:</dt>
+                <dd class="col-sm-9"><?= e($ticket['equipment_model'] ?? '—') ?></dd>
             </dd>
         </dl>    
         <!-- ===== TIMELINE (list-group) ===== -->
@@ -151,11 +158,11 @@ require __DIR__ . '/../includes/header.php';
         </div>
     </div>
     <?php endif; ?>  
+    </div>
 
     <div class="col-lg-4">
         <!-- ===== STATUS CHANGE FORM (next status only — BR16) ===== -->
         <!-- ===== ASSIGN FORM (Admin only — BR17) ===== -->
-    </div>
     </div>
 </div>
 
