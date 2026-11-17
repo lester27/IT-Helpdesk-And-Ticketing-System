@@ -27,10 +27,10 @@ Some pages are shared. The pairs below work together:
 
 **Week 2**
 - [x] `tickets/index.php`: role-based query (Employee = own, Technician = assigned/all, Admin = all + unassigned), filters, SLA badge
-- [ ] `tickets/view.php`: load ticket + joins + `v_ticket_sla`, access check, timeline from `ticket_updates`
+- [x] `tickets/view.php`: load ticket + joins + `v_ticket_sla`, access check, timeline from `ticket_updates`
 
 **Week 3**
-- [ ] `tickets/update.php`: comments (BR9); status changes in a transaction, next status only (BR16), lock resolved tickets (BR18), set `resolved_at`
+- [x] `tickets/update.php`: comments (BR9); status changes in a transaction, next status only (BR16), lock resolved tickets (BR18), set `resolved_at`
 - [ ] `tickets/assign.php`: Admin only, active + qualified technician (BR17), history row, transaction
 
 **Week 4**
