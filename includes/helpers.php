@@ -13,6 +13,11 @@ const ROLES             = ['Employee', 'Technician', 'Admin'];
 const TICKET_STATUSES   = ['Open', 'In Progress', 'Resolved'];
 const EQUIPMENT_STATUSES = ['In Stock', 'Assigned', 'Under Repair', 'Retired'];
 
+const NEXT_STATUS_MAP = [
+    'Open' => 'In Progress',
+    'In Progress' => 'Resolved',
+];
+
 /** Escape output for HTML. Use on EVERY value printed from the DB or user input. */
 function e(?string $value): string
 {
