@@ -186,33 +186,43 @@ require __DIR__ . '/../includes/header.php';
                             </td>
                             <td class="small text-muted"><?= date('M j, Y', strtotime($user['created_at'])) ?></td>
                             <td class="text-end">
-                                <div class="btn-group btn-group-sm">
-                                    <a class="btn btn-outline-primary" href="form.php?id=<?= (int)$user['user_id'] ?>">
-                                        <i class="bi bi-pencil"></i> Edit
-                                    </a>
-
-                                    <?php if ($user['role'] === 'Technician'): ?>
-                                        <a class="btn btn-outline-info" href="skills.php?id=<?= (int)$user['user_id'] ?>">
-                                            <i class="bi bi-tools"></i> Skills
-                                        </a>
-                                    <?php endif; ?>
-
-                                    <?php if (!$isSelf): ?>
-                                        <form method="post" class="d-inline" onsubmit="return confirm('Are you sure you want to <?= $user['is_active'] ? 'deactivate' : 'activate' ?> this user?');">
-                                            <?= csrf_field() ?>
-                                            <input type="hidden" name="action" value="toggle_active">
-                                            <input type="hidden" name="user_id" value="<?= (int)$user['user_id'] ?>">
-                                            <?php if ($user['is_active']): ?>
-                                                <button type="submit" class="btn btn-outline-danger" title="Deactivate User">
-                                                    <i class="bi bi-person-x"></i> Deactivate
-                                                </button>
-                                            <?php else: ?>
-                                                <button type="submit" class="btn btn-outline-success" title="Activate User">
-                                                    <i class="bi bi-person-check"></i> Activate
-                                                </button>
-                                            <?php endif; ?>
-                                        </form>
-                                    <?php endif; ?>
+                                <div class="dropdown">
+                                    <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="dropdown" aria-expanded="false" title="User actions">
+                                        <i class="bi bi-three-dots-vertical"></i>
+                                    </button>
+                                    <ul class="dropdown-menu dropdown-menu-end shadow-sm">
+                                        <li>
+                                            <a class="dropdown-item" href="form.php?id=<?= (int)$user['user_id'] ?>">
+                                                <i class="bi bi-pencil me-2 text-primary"></i> Edit
+                                            </a>
+                                        </li>
+                                        <?php if ($user['role'] === 'Technician'): ?>
+                                            <li>
+                                                <a class="dropdown-item" href="skills.php?id=<?= (int)$user['user_id'] ?>">
+                                                    <i class="bi bi-tools me-2 text-info"></i> Skills
+                                                </a>
+                                            </li>
+                                        <?php endif; ?>
+                                        <?php if (!$isSelf): ?>
+                                            <li><hr class="dropdown-divider"></li>
+                                            <li>
+                                                <form method="post" onsubmit="return confirm('Are you sure you want to <?= $user['is_active'] ? 'deactivate' : 'activate' ?> this user?');">
+                                                    <?= csrf_field() ?>
+                                                    <input type="hidden" name="action" value="toggle_active">
+                                                    <input type="hidden" name="user_id" value="<?= (int)$user['user_id'] ?>">
+                                                    <?php if ($user['is_active']): ?>
+                                                        <button type="submit" class="dropdown-item text-danger">
+                                                            <i class="bi bi-person-x me-2"></i> Deactivate
+                                                        </button>
+                                                    <?php else: ?>
+                                                        <button type="submit" class="dropdown-item text-success">
+                                                            <i class="bi bi-person-check me-2"></i> Activate
+                                                        </button>
+                                                    <?php endif; ?>
+                                                </form>
+                                            </li>
+                                        <?php endif; ?>
+                                    </ul>
                                 </div>
                             </td>
                         </tr>
