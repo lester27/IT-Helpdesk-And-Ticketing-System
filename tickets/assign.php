@@ -33,8 +33,72 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 verify_csrf();
 
 $ticketId = (int)($_POST['ticket_id'] ?? 0);
+$technicianId = (int)($_POST['technician_id'] ?? 0);
 
-// TODO(Tickets): implement checks + transaction
+$sql = "SELECT t.ticket_id, t.status, t.category_id
+        FROM tickets t
+        WHERE ticket_id = ?";
+
+$stmt = db()->prepare($sql);
+$stmt->execute([$ticketId]);
+$ticket = $stmt->fetch();
+
+if (!$ticket) {
+    redirect(BASE_URL . '/tickets/index.php');
+    exit;
+}
+
+if ($ticket['status'] === 'Resolved') {
+    flash('danger', 'Resolved tickets cannot be assigned');
+    redirect(BASE_URL . '/tickets/view.php?id=' . $ticketId);
+    exit;
+}
+
+$sql = "SELECT u.user_id, u.full_name
+        FROM users u
+        WHERE user_id = ? AND role = 'Technician' AND is_active = TRUE";
+
+$stmt = db()->prepare($sql);
+$stmt->execute([$technicianId]);
+$tech = $stmt->fetch();
+
+if (!$tech) {
+    flash('danger', 'Inactive or invalid technician');
+    redirect(BASE_URL . '/tickets/view.php?id=' . $ticketId);
+    exit;
+}
+
+$sql = "SELECT *
+        FROM technician_skills
+        WHERE user_id = ? AND category_id = ?";
+
+$stmt = db()->prepare($sql);
+$stmt->execute([$technicianId, $ticket['category_id']]);
+
+if(!$stmt->fetch()) {
+    flash('danger', 'Technician is not qualified. Add the qualification first in Skills');
+    redirect(BASE_URL . '/tickets/view.php?id=' . $ticketId);
+}
+
+db()->beginTransaction();
+try {
+    $sql = "UPDATE tickets SET assigned_to = ? WHERE ticket_id = ?";
+    $stmt = db()->prepare($sql);
+    $stmt->execute([$technicianId, $ticketId]);
+
+    $sql = "INSERT INTO ticket_updates (ticket_id, user_id, old_status, new_status, comment)
+        VALUES (?, ?, NULL, NULL, ?)";
+
+    $stmt = db()->prepare($sql);
+    $stmt->execute([$ticketId, current_user()['user_id'], 'Assigned to ' . $tech['full_name']]);
+    db()->commit();
+    flash('success', 'Assigned to ' . $tech['full_name']);
+} catch (Throwable $e) {
+    db()->rollBack();
+    throw $e;
+}
+
+
 
 redirect(BASE_URL . '/tickets/view.php?id=' . $ticketId);
 

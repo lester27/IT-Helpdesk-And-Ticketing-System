@@ -33,9 +33,9 @@ $stmt = db()->prepare($sql);
 $stmt->execute([$id]);
 $updates = $stmt->fetchAll();
 
-$sql = "SELECT t.ticket_id, t.title, c.category_name, p.priority_name,
+$sql = "SELECT t.ticket_id, t.title, c.category_name, t.category_id, p.priority_name,
                t.status, t.created_by AS creator_id, u.full_name AS creator_name,
-               t.due_at, t.description, t.created_at, t.resolved_at, 
+               t.due_at, t.description, t.created_at, t.resolved_at, t.assigned_to AS assigned_to_id,
                a.full_name AS assigned_to, s.sla_state, s.overdue_hours,
                eq.model AS equipment_model
         FROM tickets t
@@ -63,8 +63,26 @@ if (has_role('Employee') && current_user()['user_id'] !== $ticket['creator_id'])
     exit;
 }
 
-// TODO(Tickets): if Admin, load qualified technicians for assign dropdown (see assign.php)
+$technicians = [];
 
+if (has_role('Admin')){
+    $sql = "SELECT u.user_id, u.full_name, COUNT(t.ticket_id) AS open_tickets
+        FROM users u
+        JOIN technician_skills s ON s.user_id = u.user_id AND s.category_id = ?
+        LEFT JOIN tickets t ON t.assigned_to = u.user_id AND t.status <> 'Resolved'
+        WHERE u.role = 'Technician' AND u.is_active = TRUE
+        GROUP BY u.user_id, u.full_name
+        ORDER BY open_tickets";
+    
+    $stmt = db()->prepare($sql);
+    $stmt->execute([$ticket['category_id']]);
+    $technicians = $stmt->fetchAll();
+}
+
+$nextStatus = NEXT_STATUS_MAP[$ticket['status']] ?? null;
+
+$canChangeStatus = (has_role('Technician') 
+    && $ticket['assigned_to_id'] === current_user()['user_id']) || has_role('Admin');
 
 
 $pageTitle = 'Ticket #' . $id;
@@ -132,11 +150,12 @@ require __DIR__ . '/../includes/header.php';
             <?php if ($u['comment'] !== null): ?>
                 <p class="mb-1"><?= e($u['comment']) ?></p>
             <?php endif; ?>
-                </li>
                 <?php if ($u['new_status'] !== null): ?>
-                    <li class="list-group-item">Status change: <?= e($u['old_status']) ?> -> 
-                        <?= e($u['new_status']) ?></li>
-                <?php endif; ?> 
+                    <small class="text-muted">Status change: <?= e($u['old_status']) ?> -> 
+                        <?= e($u['new_status']) ?>
+                    </small>
+                <?php endif; ?>
+                </li>
             <?php endforeach; ?>
          </ul>
         <!-- ===== ADD COMMENT FORM ===== -->
@@ -153,17 +172,66 @@ require __DIR__ . '/../includes/header.php';
             <textarea name="comment" class="form-control" rows="3" 
                 required></textarea>
             
-            <button type="submit" class="btn btn-primary m-2">Submit</button>
+            <button type="submit" class="btn btn-primary mt-2">Submit</button>
         </form>
         </div>
     </div>
     <?php endif; ?>  
     </div>
-
+    
     <div class="col-lg-4">
-        <!-- ===== STATUS CHANGE FORM (next status only — BR16) ===== -->
+    <!-- ===== STATUS CHANGE FORM (next status only — BR16) ===== -->
+        <?php if ($canChangeStatus && $nextStatus !== null): ?>
+            <div class="card mt-3">
+                 <div class="card-body">
+                    <h5>Change Status</h5>
+                    <form method="post" action="update.php">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="ticket_id"
+                            value="<?= e($ticket['ticket_id']) ?>">
+                        <input type="hidden" name="action"
+                            value="status">
+                        <input type="hidden" name="new_status"
+                            value="<?= e($nextStatus) ?>">
+
+                        <textarea name="comment" class="form-control" rows="2"
+                            placeholder="Optional notes"></textarea>
+
+                        <button type="submit" class="btn btn-primary mt-2">
+                                Move to <?= e($nextStatus) ?>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        <?php endif; ?>
+        
         <!-- ===== ASSIGN FORM (Admin only — BR17) ===== -->
-    </div>
+
+        <?php if (has_role('Admin') && $ticket['status'] !== 'Resolved'): ?>
+            <div class="card mt-3">
+                <div class="card-body">
+                    <h5>Assign Technician</h5>
+
+                    <form method="post" action="assign.php">
+                        <?= csrf_field() ?>
+                        <input type="hidden" name="ticket_id" 
+                            value="<?= e($ticket['ticket_id']) ?>">
+
+                        <select name="technician_id" class="form-select" required>
+                            <option value="">Select technician</option>
+                                <?php foreach ($technicians as $tech): ?>
+                                    <option value="<?= e($tech['user_id']) ?>" <?=($ticket['assigned_to_id'] === $tech['user_id'] ? 'selected': '') ?>>
+                                        <?= e($tech['full_name']) ?>
+                                        (<?= e($tech['open_tickets']) ?> open)
+                                    </option>
+                                <?php endforeach; ?>
+                        </select>                
+                        <button type="submit" class="btn btn-primary mt-2">Assign</button>
+                    </form>
+                </div>
+            </div>
+        <?php endif; ?>
+     </div>   
 </div>
 
 <?php require __DIR__ . '/../includes/footer.php'; ?>

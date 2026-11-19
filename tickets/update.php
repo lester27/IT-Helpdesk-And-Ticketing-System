@@ -37,10 +37,6 @@ $action   = $_POST['action'] ?? '';
 $stmt = db()->prepare($sql);
 $stmt->execute([$ticketId]);
 $ticket = $stmt->fetch();
-$nextStatusMap = [
-    'Open' => 'In Progress',
-    'In Progress' => 'Resolved'
-];
 
 if (!$ticket) {
     redirect(BASE_URL . '/tickets/index.php');
@@ -82,7 +78,7 @@ if ($action === 'status'){
     }
 
     $newStatus = $_POST['new_status'] ?? '';
-    $nextStatus = $nextStatusMap[$ticket['status']] ?? null;
+    $nextStatus = NEXT_STATUS_MAP[$ticket['status']] ?? null;
 
     if ($newStatus !== $nextStatus) {
         flash('danger', 'Invalid status change');
@@ -95,7 +91,7 @@ if ($action === 'status'){
     }
 
     db()->beginTransaction();
-    try{
+    try{    
         if ($newStatus === 'Resolved') {
             $sql = "UPDATE tickets SET status = ?, resolved_at = NOW() WHERE ticket_id = ?";
         } else {

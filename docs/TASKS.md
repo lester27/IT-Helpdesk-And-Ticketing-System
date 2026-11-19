@@ -31,7 +31,7 @@ Some pages are shared. The pairs below work together:
 
 **Week 3**
 - [x] `tickets/update.php`: comments (BR9); status changes in a transaction, next status only (BR16), lock resolved tickets (BR18), set `resolved_at`
-- [ ] `tickets/assign.php`: Admin only, active + qualified technician (BR17), history row, transaction
+- [x] `tickets/assign.php`: Admin only, active + qualified technician (BR17), history row, transaction
 
 **Week 4**
 - [ ] Integration testing across all modules, demo script, tag `v1.0`
