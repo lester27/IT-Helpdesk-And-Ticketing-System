@@ -9,6 +9,18 @@
  *   Admin      : Dashboard, Tickets, Equipment, Users, Departments, Reports
  */
 $u = current_user();
+if (!function_exists('nav_active')) {
+    function nav_active(string $target, array $except = []): string {
+        $script = str_replace('\\', '/', $_SERVER['SCRIPT_NAME']);
+        if (substr($target, -1) === '/') {
+            $match = basename(dirname($script)) === trim($target, '/')
+                  && !in_array(basename($script), $except, true);
+        } else {
+            $match = substr($script, -(strlen($target) + 1)) === '/' . $target;
+        }
+        return $match ? ' active' : '';
+    }
+}
 ?>
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
@@ -19,21 +31,21 @@ $u = current_user();
 
         <div class="collapse navbar-collapse" id="mainNav">
             <ul class="navbar-nav me-auto">
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/dashboard.php">Dashboard</a></li>
-                <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/tickets/index.php">Tickets</a></li>
+                <li class="nav-item"><a class="nav-link<?= nav_active('dashboard.php') ?>" href="<?= BASE_URL ?>/dashboard.php">Dashboard</a></li>
+                <li class="nav-item"><a class="nav-link<?= nav_active('tickets/', ['create.php']) ?>" href="<?= BASE_URL ?>/tickets/index.php">Tickets</a></li>
 
                 <?php if (has_role('Employee')): ?>
-                    <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/tickets/create.php">New Ticket</a></li>
-                <?php endif; ?>
+                <li class="nav-item"><a class="nav-link<?= nav_active('tickets/create.php') ?>" href="<?= BASE_URL ?>/tickets/create.php">New Ticket</a></li>
+                    <?php endif; ?>
 
                 <?php if (has_role('Technician', 'Admin')): ?>
-                    <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/equipment/index.php">Equipment</a></li>
-                <?php endif; ?>
+                <li class="nav-item"><a class="nav-link<?= nav_active('equipment/') ?>" href="<?= BASE_URL ?>/equipment/index.php">Equipment</a></li>
+                    <?php endif; ?>
 
                 <?php if (has_role('Admin')): ?>
-                    <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/users/index.php">Users</a></li>
-                    <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/departments/index.php">Departments</a></li>
-                    <li class="nav-item"><a class="nav-link" href="<?= BASE_URL ?>/reports/index.php">Reports</a></li>
+                <li class="nav-item"><a class="nav-link<?= nav_active('users/') ?>" href="<?= BASE_URL ?>/users/index.php">Users</a></li>
+                <li class="nav-item"><a class="nav-link<?= nav_active('departments/') ?>" href="<?= BASE_URL ?>/departments/index.php">Departments</a></li>
+                <li class="nav-item"><a class="nav-link<?= nav_active('reports/') ?>" href="<?= BASE_URL ?>/reports/index.php">Reports</a></li>
                 <?php endif; ?>
             </ul>
 

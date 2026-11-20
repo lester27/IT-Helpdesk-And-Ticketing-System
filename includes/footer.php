@@ -1,7 +1,7 @@
 </main>
 
-<footer class="text-center text-muted small py-3">
-    IT Helpdesk · COMP 018 Database Administration · BSIT 3-5 · PUP CCIS
+<footer class="border-top text-center text-muted small py-3 mt-auto">
+    IT Helpdesk · COMP 018 Database Administration · BSIT 3-5 · PUP CCIS · <?= date('Y') ?>
 </footer>
 
 <!-- Bootstrap JS bundle (needed for navbar collapse, alerts, modals) -->
