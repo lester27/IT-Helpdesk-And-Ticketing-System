@@ -25,11 +25,11 @@ $pageTitle = $pageTitle ?? 'IT Helpdesk';
     <!-- Small overrides only. Prefer Bootstrap utility classes. -->
     <link rel="stylesheet" href="<?= BASE_URL ?>/assets/css/style.css">
 </head>
-<body class="bg-light">
+<body class="bg-light d-flex flex-column min-vh-100">
 
 <?php if (is_logged_in()) require __DIR__ . '/navbar.php'; ?>
 
-<main class="container py-4">
+<main class="container py-4 flex-grow-1">
     <?php foreach (get_flashes() as $f): ?>
         <div class="alert alert-<?= e($f['type']) ?> alert-dismissible fade show" role="alert">
             <?= e($f['message']) ?>
